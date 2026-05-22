@@ -90,6 +90,25 @@ function Button({ children, variant = "primary", href = "#contact" }: { children
   );
 }
 
+function BrandLogo() {
+  const [logoLoaded, setLogoLoaded] = useState(true);
+
+  return (
+    <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-flare shadow-glow">
+      {logoLoaded ? (
+        <img
+          src="/logo.png"
+          alt="APEX FORGE logo"
+          className="h-full w-full object-cover"
+          onError={() => setLogoLoaded(false)}
+        />
+      ) : (
+        <Dumbbell className="h-5 w-5 text-white" />
+      )}
+    </span>
+  );
+}
+
 function Navbar() {
   const [open, setOpen] = useState(false);
 
@@ -97,9 +116,7 @@ function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-obsidian/60 backdrop-blur-2xl">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
         <a href="#home" className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-flare shadow-glow">
-            <Dumbbell className="h-5 w-5 text-white" />
-          </span>
+          <BrandLogo />
           <span className="font-display text-xl font-black uppercase tracking-[0.16em] text-white">APEX FORGE</span>
         </a>
         <div className="hidden items-center gap-7 lg:flex">
@@ -624,9 +641,7 @@ function ContactFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.2fr_0.8fr]">
         <div>
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-flare shadow-glow">
-              <Dumbbell className="h-5 w-5 text-white" />
-            </span>
+            <BrandLogo />
             <span className="font-display text-xl font-black uppercase tracking-[0.16em] text-white">APEX FORGE</span>
           </div>
           <p className="mt-5 leading-7 text-ash">Luxury fitness coaching for serious transformations, performance, and accountability.</p>

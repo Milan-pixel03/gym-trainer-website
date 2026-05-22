@@ -1,0 +1,5 @@
+Add your logo image in this folder as:
+
+logo.png
+
+Recommended: square PNG, 512x512 or larger, with transparent background if possible.
