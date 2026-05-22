@@ -16,7 +16,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Apex Forge | Premium Gym Trainer",
-  description: "A cinematic premium gym trainer website with smart workout tools and luxury fitness coaching."
+  description: "A cinematic premium gym trainer website with smart workout tools and luxury fitness coaching.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" }
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }]
+  }
 };
 
 export default function RootLayout({
