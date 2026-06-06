@@ -636,6 +636,81 @@ function FinalCTA() {
 }
 
 function ContactFooter() {
+  const [formData, setFormData] = useState({ name: "", email: "", goal: "" });
+  const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">("idle");
+  const [formMessage, setFormMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateFormField = (field: "name" | "email" | "goal", value: string) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+    if (formStatus !== "idle") {
+      setFormStatus("idle");
+      setFormMessage("");
+    }
+  };
+
+  const submitConsultation = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const goal = formData.goal.trim();
+    const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+
+    if (!name || !email || !goal) {
+      setFormStatus("error");
+      setFormMessage("Please fill in your name, email, and goal.");
+      return;
+    }
+
+    if (!emailIsValid) {
+      setFormStatus("error");
+      setFormMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (!accessKey) {
+      setFormStatus("error");
+      setFormMessage("Form is not configured yet. Add the Web3Forms access key in Vercel.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setFormStatus("idle");
+    setFormMessage("");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: "New APEX FORGE consultation request",
+          from_name: "APEX FORGE Website",
+          name,
+          email,
+          goal,
+          message: `Goal: ${goal}`
+        })
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Submission failed");
+      }
+
+      setFormData({ name: "", email: "", goal: "" });
+      setFormStatus("success");
+      setFormMessage("Consultation request sent. We will contact you soon.");
+    } catch {
+      setFormStatus("error");
+      setFormMessage("Something went wrong. Please try again in a moment.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer id="contact" className="border-t border-white/10 bg-obsidian px-5 py-16 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.2fr_0.8fr]">
@@ -646,12 +721,45 @@ function ContactFooter() {
           </div>
           <p className="mt-5 leading-7 text-ash">Luxury fitness coaching for serious transformations, performance, and accountability.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <input placeholder="Name" className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare" />
-          <input placeholder="Email" className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare" />
-          <input placeholder="Goal" className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare sm:col-span-2" />
-          <button className="rounded-full bg-flare px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-obsidian sm:col-span-2">Request consultation</button>
-        </div>
+        <form onSubmit={submitConsultation} className="grid gap-4 sm:grid-cols-2">
+          <input
+            name="name"
+            placeholder="Name"
+            required
+            value={formData.name}
+            onChange={(event) => updateFormField("name", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare"
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            required
+            value={formData.email}
+            onChange={(event) => updateFormField("email", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare"
+          />
+          <input
+            name="goal"
+            placeholder="Goal"
+            required
+            value={formData.goal}
+            onChange={(event) => updateFormField("goal", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-graphite px-5 py-4 text-white outline-none placeholder:text-ash focus:border-flare sm:col-span-2"
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-full bg-flare px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-obsidian disabled:cursor-not-allowed disabled:opacity-70 sm:col-span-2"
+          >
+            {isSubmitting ? "Sending..." : "Request consultation"}
+          </button>
+          {formMessage ? (
+            <p className={`sm:col-span-2 text-sm font-bold ${formStatus === "success" ? "text-white" : "text-flare"}`} aria-live="polite">
+              {formMessage}
+            </p>
+          ) : null}
+        </form>
         <div className="grid content-start gap-5 text-ash">
           <p className="flex items-center gap-3"><Mail className="h-5 w-5 text-flare" /> coach@apexforge.fit</p>
           <p className="flex items-center gap-3"><MapPin className="h-5 w-5 text-flare" /> Bandra Performance District</p>
